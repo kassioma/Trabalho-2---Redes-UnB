@@ -1,0 +1,103 @@
+# Definição dos serviços Docker
+services:
+  # Serviço Nextcloud: uma aplicação de compartilhamento de arquivos
+  # Configurações incluem mapeamento de porta, rede, volume, variáveis de ambiente
+  # e dependências nos serviços 'db' e 'libreoffice'
+  nextcloud:
+    image: nextcloud
+    ports:
+      - "8080:80"
+    networks:
+      - mynetwork
+    volumes:
+      - nextcloud_data:/var/www/html
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=password
+      - NEXTCLOUD_PREVIEW_LIBRERENDER_ENDPOINT=http://libreoffice:3000/lool 
+    depends_on:
+      - db
+      - libreoffice
+
+  # Serviço Nextcloud: uma aplicação de compartilhamento de arquivos
+  # Configurações incluem mapeamento de porta, rede, volume, variáveis de ambiente
+  # e dependências nos serviços 'db' e 'libreoffice'
+  db:
+    image: postgres
+    networks:
+      - mynetwork
+    environment:
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgre_data:/var/lib/postgresql/data
+
+  # Serviço Adminer: Interface web para gerenciamento do banco de dados PostgreSQL
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8081:8080"  # Mapeamento de porta: 8081 no host para 8080 no contêiner
+    networks:
+      - mynetwork   # Conecta à rede chamada "mynetwork"
+    depends_on:
+      - db          # Aguarda o serviço "db" ser iniciado antes de iniciar o Adminer
+
+  # Serviço Nginx: servidor web que atua como proxy reverso para o Nextcloud
+  # Configurações incluem mapeamento de porta, rede, volume com o arquivo nginx.conf e dependência no serviço 'nextcloud'
+  nginx:
+    image: nginx
+    ports:
+      - "8000:80"
+    networks:
+      - mynetwork
+    volumes:
+      - ./C:\Users\kassi\OneDrive\Área de Trabalho\Redes\nginx.conf
+    depends_on:
+      - nextcloud
+
+  # Serviço Plex: servidor de mídia para streaming
+  # Configurações incluem mapeamento de porta, rede, volumes para configuração e dados
+  plex:
+    image: plexinc/pms-docker
+    ports:
+      - "32400:32400"
+    networks:
+      - mynetwork
+    volumes:
+      - plex_data:/config
+      - C:\Users\kassi\OneDrive\Área de Trabalho\Redes\Midia:/data
+
+  # Serviço LibreOffice: suíte de escritório para visualização de documentos
+  # Configurações incluem imagem, segurança, variáveis de ambiente, volumes, mapeamento de porta, rede e reinício automático
+  libreoffice:
+    image: lscr.io/linuxserver/libreoffice:latest
+    container_name: libreofficeredes
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/config:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+# Definição da rede 'mynetwork' como uma rede do tipo bridge
+networks:
+  mynetwork:
+    driver: bridge
+
+# Definição de volumes para persistência de dados
+volumes:
+  nextcloud_data:
+  plex_data:
+  postgre_data:
