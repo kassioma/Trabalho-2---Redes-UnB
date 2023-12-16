@@ -1,4 +1,4 @@
-# Projeto de Infraestrutura em Contêineres - Trabalho 2 de Redes de Computadores
+# Projeto de Infraestrutura em Contêineres - Trabalho 2 - Redes de Computadores
 
 Este projeto visa demonstrar o uso eficiente de contêineres para a criação de uma infraestrutura completa, oferecendo uma solução versátil para ambientes empresariais. Utilizando o Docker Compose, a implementação engloba uma variedade de serviços interconectados para compartilhamento de arquivos, colaboração, streaming de mídia e mais.
 
